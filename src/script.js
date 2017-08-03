@@ -1,5 +1,8 @@
 Math.TWO_PI = 2 * Math.PI
 
+const numberOfCircles = 50
+const laneSize = 250
+
 const canvas = document.getElementsByTagName('canvas')[0]
 const ctx = canvas.getContext('2d')
 
@@ -11,13 +14,19 @@ const directions = {
   RIGHT: 0x04
 }
 
+// Constants for orientations
+const orientations = {
+  HORIZONTAL: 0xF1,
+  VERTICAL: 0xF2
+}
+
 // Colors chosen from material.io color palettes
 // https://material.io/guidelines/style/color.html#color-color-tool
 const colors = {
-  LIGHT_BLUE: '#03A9F4',
   RED: '#F44336',
-  LIGHT_GREEN: '#8BC34A',
   ORANGE: '#FF9800',
+  LIGHT_BLUE: '#03A9F4',
+  LIGHT_GREEN: '#8BC34A',
   DEEP_PURPLE: '#673AB7'
 }
 
@@ -32,10 +41,37 @@ const random = {
   }
 }
 
+const round = (number, step) => (Math.round(number / step) * step)
+
 const circles = []
+const lanes = []
 let width = null
 let height = null
 let previousTimestamp = null
+
+class Lane {
+  constructor ({
+    x = 0,
+    y = 0,
+    orientation = orientations.RIGHT
+  }) {
+    this.x = x
+    this.y = y
+    this.orientation = orientation
+  }
+
+  draw () {
+    ctx.beginPath()
+    if (this.orientation == orientations.HORIZONTAL) {
+      ctx.moveTo(0, this.y)
+      ctx.lineTo(width, this.y)
+    } else if(this.orientation === orientations.VERTICAL) {
+      ctx.moveTo(this.x, 0)
+      ctx.lineTo(this.x, height)
+    }
+    ctx.stroke()
+  }
+}
 
 class Circle {
   constructor ({
@@ -93,11 +129,10 @@ class Circle {
   }
 
   draw () {
-    ctx.save()
-    ctx.translate(this.x, this.y)
     ctx.fillStyle = this.color
-    ctx.fill(this.path)
-    ctx.restore()
+    ctx.beginPath()
+    ctx.arc(this.x, this.y, this.radius, 0, Math.TWO_PI)
+    ctx.fill()
   }
 
   move (delta) {
@@ -128,16 +163,25 @@ const requestFrame = () => {
 
 const intialize = () => {
   refreshCanvas()
+  ctx.translate(0.5, 0.5)
 
-  for (let i = 1; i <= 20; i++) {
-    const x = random.float({max: width})
-    const y = random.float({max: height})
+  for (let i = 0; i < numberOfCircles; i++) {
+    const x = round(random.float({max: width}), laneSize)
+    const y = round(random.float({max: height}), laneSize)
     const radius = random.float({min: 5, max: 15})
     const velocity = random.float({min: 0.25, max: 0.5})
     const color = random.key(colors)
     const direction = random.key(directions)
 
     circles.push(new Circle({x, y, radius, velocity, color, direction}))
+  }
+
+  for (let x = laneSize; x < width; x += laneSize) {
+    lanes.push(new Lane({x, orientation: orientations.VERTICAL}))
+  }
+
+  for (let y = laneSize; y < height; y += laneSize) {
+    lanes.push(new Lane({y, orientation: orientations.HORIZONTAL}))
   }
 
   requestFrame()
@@ -153,6 +197,7 @@ const drawFrame = (timestamp) => {
 
   // Only take the drawing hit after everything is updated
   refreshCanvas()
+  lanes.forEach((lane) => lane.draw())
   circles.forEach((circle) => circle.draw())
   requestFrame()
 }
