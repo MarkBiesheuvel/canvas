@@ -1,6 +1,6 @@
 Math.TWO_PI = 2 * Math.PI
 
-const numberOfCircles = 50
+const circlesPerLane = 3
 const laneSize = 250
 
 const canvas = document.getElementsByTagName('canvas')[0]
@@ -34,14 +34,9 @@ const colors = {
 const random = {
   float: ({min = 0, max}) => (min + Math.random() * (max - min)),
   int: (options) => Math.floor(random.float(options)),
-  key: (object) => {
-    const keys = Object.keys(object)
-    const index = random.int({max: keys.length})
-    return object[keys[index]]
-  }
+  item: (array) => array[random.int({max: array.length})],
+  key: (object) => object[random.item(Object.keys(object))]
 }
-
-const round = (number, step) => (Math.round(number / step) * step)
 
 const circles = []
 const lanes = []
@@ -82,62 +77,78 @@ class Circle {
     color = colors.LIGHT_BLUE,
     direction = directions.RIGHT
   }) {
-    // Set properties
     this.x = x
     this.y = y
     this.radius = radius
     this.velocity = velocity
     this.color = color
     this.direction = direction
-    // Generate path
-    this.path = new window.Path2D()
-    this.path.arc(0, 0, radius, 0, Math.TWO_PI)
-    // Set move function
-    if (direction === directions.RIGHT) {
-      this._move = (distance) => {
-        this.x += distance
-        if (this.x > width + this.radius) {
-          this.x = -this.radius
-        }
-      }
-    } else if (direction === directions.LEFT) {
-      this._move = (distance) => {
-        this.x -= distance
-        if (this.x < -this.radius) {
-          this.x = width + this.radius
-        }
-      }
-    } else if (direction === directions.DOWN) {
-      this._move = (distance) => {
-        this.y += distance
-        if (this.y > height + this.radius) {
-          this.y = -this.radius
-        }
-      }
-    } else if (direction === directions.UP) {
-      this._move = (distance) => {
-        this.y -= distance
-        if (this.y < -this.radius) {
-          this.y = height + this.radius
-        }
-      }
-    } else {
-      // Invalid direction
-      console.error('Invalid direction', direction)
-      this._move = () => {}
-    }
   }
 
   draw () {
     ctx.fillStyle = this.color
+    this._draw(this.x, this.y)
+
+    // Draw circle at the other side if it is close to the edge
+    if (this.x < this.radius) {
+      this._draw(this.x + width, this.y)
+    } else if (width - this.radius < this.x) {
+      this._draw(this.x - width, this.y)
+    }
+
+    // Draw circle at the other side if it is close to the edge
+    if (this.y < this.radius) {
+      this._draw(this.x, this.y + height)
+    } else if (height - this.radius < this.y) {
+      this._draw(this.x, this.y - height)
+    }
+  }
+
+  _draw (x, y) {
     ctx.beginPath()
-    ctx.arc(this.x, this.y, this.radius, 0, Math.TWO_PI)
+    ctx.arc(x, y, this.radius, 0, Math.TWO_PI)
     ctx.fill()
   }
 
   move (delta) {
     const distance = delta * this.velocity
-    this._move(distance)
+    if (this.direction === directions.RIGHT) {
+      this.right(distance)
+    } else if (this.direction === directions.LEFT) {
+      this.left(distance)
+    } else if (this.direction === directions.DOWN) {
+      this.down(distance)
+    } else if (this.direction === directions.UP) {
+      this.up(distance)
+    }
+  }
+
+  up (distance) {
+    this.y -= distance
+    while (this.y < -this.radius) {
+      this.y += height
+    }
+  }
+
+  down (distance) {
+    this.y += distance
+    while (height + this.radius < this.y) {
+      this.y -= height
+    }
+  }
+
+  left  (distance) {
+    this.x -= distance
+    while (this.x < -this.radius) {
+      this.x += width
+    }
+  }
+
+  right  (distance) {
+    this.x += distance
+    while (width + this.radius < this.x) {
+      this.x -= width
+    }
   }
 }
 
@@ -165,23 +176,32 @@ const intialize = () => {
   refreshCanvas()
   ctx.translate(0.5, 0.5)
 
-  for (let i = 0; i < numberOfCircles; i++) {
-    const x = round(random.float({max: width}), laneSize)
-    const y = round(random.float({max: height}), laneSize)
+  const randomCircle = ({
+    x = random.float({max: width}),
+    y = random.float({max: height}),
+    direction = random.key(directions)
+  }) => {
     const radius = random.float({min: 5, max: 15})
     const velocity = random.float({min: 0.25, max: 0.5})
     const color = random.key(colors)
-    const direction = random.key(directions)
 
-    circles.push(new Circle({x, y, radius, velocity, color, direction}))
+    return new Circle({x, y, radius, velocity, color, direction})
   }
 
   for (let x = laneSize; x < width; x += laneSize) {
     lanes.push(new Lane({x, orientation: orientations.VERTICAL}))
+    for (let i = 0; i < circlesPerLane; i++) {
+      const direction = random.item([directions.UP, directions.DOWN])
+      circles.push(randomCircle({x, direction}))
+    }
   }
 
   for (let y = laneSize; y < height; y += laneSize) {
     lanes.push(new Lane({y, orientation: orientations.HORIZONTAL}))
+    for (let i = 0; i < circlesPerLane; i++) {
+      const direction = random.item([directions.RIGHT, directions.LEFT])
+      circles.push(randomCircle({y, direction}))
+    }
   }
 
   requestFrame()
