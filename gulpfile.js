@@ -13,8 +13,8 @@ gulp.task('watch', () => {
 gulp.task('build', (callback) => {
   pump([
     gulp.src('src/*.js'),
-    babel({ presets: ['es2015'] }),
-    uglify(),
+    babel({presets: ['es2015'] }),
+    uglify({toplevel: true}),
     gulp.dest('dist'),
     livereload()
   ], callback)
