@@ -1,32 +1,34 @@
+import {horizontalDirections, verticalDirections} from './directions'
+
 export default class Lane {
   constructor ({
     x = 0,
     y = 0,
-    direction = directions.RIGHT
+    direction
   }) {
     this.x = x
     this.y = y
     this.direction = direction
   }
 
-  draw () {
+  draw ({ctx, width, height}) {
     if (horizontalDirections.includes(this.direction)) {
-      this.drawHorizontalLine(this.y)
+      this.drawHorizontalLine(ctx, this.y, width)
     } else if (verticalDirections.includes(this.direction)) {
-      this.drawVerticalLine(this.x)
+      this.drawVerticalLine(ctx, this.x, height)
     } else {
       throw Error('Invalid direction')
     }
   }
 
-  drawHorizontalLine (y) {
+  drawHorizontalLine (ctx, y, width) {
     ctx.beginPath()
     ctx.moveTo(0, y)
     ctx.lineTo(width, y)
     ctx.stroke()
   }
 
-  drawVerticalLine (x) {
+  drawVerticalLine (ctx, x, height) {
     ctx.beginPath()
     ctx.moveTo(x, 0)
     ctx.lineTo(x, height)

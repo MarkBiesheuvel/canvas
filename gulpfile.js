@@ -14,7 +14,7 @@ gulp.task('build', (callback) => {
   pump([
     gulp.src('src/*.js'),
     rollup({entry: 'src/script.js', format: 'es'}),
-    babel({presets: ['es2015'] }),
+    babel({presets: ['es2015']}),
     uglify({toplevel: true}),
     gulp.dest('dist'),
     livereload()
