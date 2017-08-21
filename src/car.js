@@ -1,4 +1,4 @@
-import {directions} from './directions'
+import {Direction} from './util'
 
 export default class Car {
   constructor ({
@@ -38,19 +38,19 @@ export default class Car {
 
   drawCircle (ctx, x, y) {
     ctx.beginPath()
-    ctx.arc(x, y, this.radius, 0, Math.TWO_PI)
+    ctx.arc(x, y, this.radius, 0, 2 * Math.PI)
     ctx.fill()
   }
 
   move ({width, height}, delta) {
     const distance = delta * this.velocity
-    if (this.direction === directions.RIGHT) {
+    if (this.direction === Direction.right) {
       this.moveRight(distance, width)
-    } else if (this.direction === directions.LEFT) {
+    } else if (this.direction === Direction.left) {
       this.moveLeft(distance, width)
-    } else if (this.direction === directions.DOWN) {
+    } else if (this.direction === Direction.down) {
       this.moveDown(distance, height)
-    } else if (this.direction === directions.UP) {
+    } else if (this.direction === Direction.up) {
       this.moveUp(distance, height)
     }
   }

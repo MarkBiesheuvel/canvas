@@ -1,23 +1,23 @@
-import {horizontalDirections, verticalDirections} from './directions'
+import {Direction, Axis} from './util'
 
 export default class Lane {
   constructor ({
     x = 0,
     y = 0,
-    direction
+    axis
   }) {
     this.x = x
     this.y = y
-    this.direction = direction
+    this.axis = axis
   }
 
   draw ({ctx, width, height}) {
-    if (horizontalDirections.includes(this.direction)) {
+    if (this.axis === Axis.horizontal) {
       this.drawHorizontalLine(ctx, this.y, width)
-    } else if (verticalDirections.includes(this.direction)) {
+    } else if (this.axis === Axis.vertical) {
       this.drawVerticalLine(ctx, this.x, height)
     } else {
-      throw Error('Invalid direction')
+      throw Error(`Invalid axis: ${axis}`)
     }
   }
 
