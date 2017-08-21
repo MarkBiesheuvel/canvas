@@ -1,6 +1,6 @@
 Math.TWO_PI = 2 * Math.PI
 
-const circlesPerLane = 5
+const carsPerLane = 5
 const laneSize = 250
 
 const canvas = document.getElementsByTagName('canvas')[0]
@@ -8,42 +8,21 @@ const ctx = canvas.getContext('2d')
 
 // Constants for directions
 const directions = {
-  UP: 0x01,
-  DOWN: 0x02,
-  LEFT: 0x03,
-  RIGHT: 0x04
+  UP: '0x01',
+  DOWN: '0x02',
+  LEFT: '0x03',
+  RIGHT: '0x04'
 }
 
-// Constants for lane types
-const laneTypes = {
-  UP_ONLY: 0xF1,
-  DOWN_ONLY: 0xF2,
-  UP_AND_DOWN: 0xF3,
-  LEFT_ONLY: 0xF4,
-  RIGHT_ONLY: 0xF5,
-  LEFT_AND_RIGHT: 0xF6
-}
-
-const verticalLaneTypes = [
-  laneTypes.UP_ONLY,
-  laneTypes.DOWN_ONLY,
-  laneTypes.UP_AND_DOWN
+const verticalDirections = [
+  directions.UP,
+  directions.DOWN
 ]
 
-const horizontalLaneTypes = [
-  laneTypes.LEFT_ONLY,
-  laneTypes.RIGHT_ONLY,
-  laneTypes.LEFT_AND_RIGHT
+const horizontalDirections = [
+  directions.LEFT,
+  directions.RIGHT
 ]
-
-const allowedDirections = {
-  [laneTypes.UP_ONLY]: [directions.UP],
-  [laneTypes.DOWN_ONLY]: [directions.DOWN],
-  [laneTypes.UP_AND_DOWN]: [directions.UP, directions.DOWN],
-  [laneTypes.LEFT_ONLY]: [directions.LEFT],
-  [laneTypes.RIGHT_ONLY]: [directions.RIGHT],
-  [laneTypes.LEFT_AND_RIGHT]: [directions.LEFT, directions.RIGHT]
-}
 
 // Colors chosen from material.io color palettes
 // https://material.io/guidelines/style/color.html#color-color-tool
@@ -63,7 +42,7 @@ const random = {
   key: (object) => object[random.item(Object.keys(object))]
 }
 
-const circles = []
+const cars = []
 const lanes = []
 let width = null
 let height = null
@@ -73,40 +52,39 @@ class Lane {
   constructor ({
     x = 0,
     y = 0,
-    type
+    direction = directions.RIGHT
   }) {
     this.x = x
     this.y = y
-    this.type = type
+    this.direction = direction
   }
 
   draw () {
-    if (this.type == laneTypes.UP_AND_DOWN ||
-        this.type == laneTypes.LEFT_AND_RIGHT) {
-      ctx.strokeStyle = 'black'
-      ctx.lineWidth = 2
+    if (horizontalDirections.includes(this.direction)) {
+      this.drawHorizontalLine(this.y)
+    } else if (verticalDirections.includes(this.direction)) {
+      this.drawVerticalLine(this.x)
     } else {
-      ctx.strokeStyle = 'grey'
-      ctx.lineWidth = 1
+      throw Error('Invalid direction')
     }
+  }
 
+  drawHorizontalLine (y) {
     ctx.beginPath()
-    if (this.type == laneTypes.LEFT_ONLY ||
-        this.type == laneTypes.RIGHT_ONLY ||
-        this.type == laneTypes.LEFT_AND_RIGHT) {
-      ctx.moveTo(0, this.y)
-      ctx.lineTo(width, this.y)
-    } else if(this.type === laneTypes.UP_ONLY ||
-        this.type === laneTypes.DOWN_ONLY ||
-        this.type === laneTypes.UP_AND_DOWN) {
-      ctx.moveTo(this.x, 0)
-      ctx.lineTo(this.x, height)
-    }
+    ctx.moveTo(0, y)
+    ctx.lineTo(width, y)
+    ctx.stroke()
+  }
+
+  drawVerticalLine (x) {
+    ctx.beginPath()
+    ctx.moveTo(x, 0)
+    ctx.lineTo(x, height)
     ctx.stroke()
   }
 }
 
-class Circle {
+class Car {
   constructor ({
     x,
     y,
@@ -125,24 +103,24 @@ class Circle {
 
   draw () {
     ctx.fillStyle = this.color
-    this._draw(this.x, this.y)
+    this.drawCircle(this.x, this.y)
 
     // Draw circle at the other side if it is close to the edge
     if (this.x < this.radius) {
-      this._draw(this.x + width, this.y)
+      this.drawCircle(this.x + width, this.y)
     } else if (width - this.radius < this.x) {
-      this._draw(this.x - width, this.y)
+      this.drawCircle(this.x - width, this.y)
     }
 
     // Draw circle at the other side if it is close to the edge
     if (this.y < this.radius) {
-      this._draw(this.x, this.y + height)
+      this.drawCircle(this.x, this.y + height)
     } else if (height - this.radius < this.y) {
-      this._draw(this.x, this.y - height)
+      this.drawCircle(this.x, this.y - height)
     }
   }
 
-  _draw (x, y) {
+  drawCircle (x, y) {
     ctx.beginPath()
     ctx.arc(x, y, this.radius, 0, Math.TWO_PI)
     ctx.fill()
@@ -151,38 +129,38 @@ class Circle {
   move (delta) {
     const distance = delta * this.velocity
     if (this.direction === directions.RIGHT) {
-      this.right(distance)
+      this.moveRight(distance)
     } else if (this.direction === directions.LEFT) {
-      this.left(distance)
+      this.moveLeft(distance)
     } else if (this.direction === directions.DOWN) {
-      this.down(distance)
+      this.moveDown(distance)
     } else if (this.direction === directions.UP) {
-      this.up(distance)
+      this.moveUp(distance)
     }
   }
 
-  up (distance) {
+  moveUp (distance) {
     this.y -= distance
     while (this.y < -this.radius) {
       this.y += height
     }
   }
 
-  down (distance) {
+  moveDown (distance) {
     this.y += distance
     while (height + this.radius < this.y) {
       this.y -= height
     }
   }
 
-  left  (distance) {
+  moveLeft  (distance) {
     this.x -= distance
     while (this.x < -this.radius) {
       this.x += width
     }
   }
 
-  right  (distance) {
+  moveRight  (distance) {
     this.x += distance
     while (width + this.radius < this.x) {
       this.x -= width
@@ -214,7 +192,7 @@ const intialize = () => {
   refreshCanvas()
   // ctx.translate(0.5, 0.5)
 
-  const randomCircle = ({
+  const randomCar = ({
     x = random.float({max: width}),
     y = random.float({max: height}),
     direction = random.key(directions)
@@ -223,24 +201,22 @@ const intialize = () => {
     const velocity = random.float({min: 0.25, max: 0.5})
     const color = random.key(colors)
 
-    return new Circle({x, y, radius, velocity, color, direction})
+    return new Car({x, y, radius, velocity, color, direction})
   }
 
   for (let x = laneSize; x < width; x += laneSize) {
-    const type = random.item(verticalLaneTypes)
-    lanes.push(new Lane({x, type}))
-    for (let i = 0; i < circlesPerLane; i++) {
-      const direction = random.item(allowedDirections[type])
-      circles.push(randomCircle({x, direction}))
+    const direction = random.item(verticalDirections)
+    lanes.push(new Lane({x, direction}))
+    for (let i = 0; i < carsPerLane; i++) {
+      cars.push(randomCar({x, direction}))
     }
   }
 
   for (let y = laneSize; y < height; y += laneSize) {
-    const type = random.item(horizontalLaneTypes)
-    lanes.push(new Lane({y, type}))
-    for (let i = 0; i < circlesPerLane; i++) {
-      const direction = random.item(allowedDirections[type])
-      circles.push(randomCircle({y, direction}))
+    const direction = random.item(horizontalDirections)
+    lanes.push(new Lane({y, direction}))
+    for (let i = 0; i < carsPerLane; i++) {
+      cars.push(randomCar({y, direction}))
     }
   }
 
@@ -253,12 +229,12 @@ const drawFrame = (timestamp) => {
   previousTimestamp = timestamp
 
   // Move all objects
-  circles.forEach((circle) => circle.move(delta))
+  cars.forEach((car) => car.move(delta))
 
   // Only take the drawing hit after everything is updated
   refreshCanvas()
   lanes.forEach((lane) => lane.draw())
-  circles.forEach((circle) => circle.draw())
+  cars.forEach((car) => car.draw())
   requestFrame()
 }
 
