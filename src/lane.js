@@ -4,11 +4,13 @@ export default class Lane {
   constructor ({
     x = 0,
     y = 0,
-    axis
+    axis,
+    direction
   }) {
     this.x = x
     this.y = y
     this.axis = axis
+    this.direction = direction
   }
 
   draw ({ctx, width, height}) {
