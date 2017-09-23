@@ -16,11 +16,11 @@ export default {
   },
 
   // Radius of a car
-  radius: 7,
+  radius: 10,
 
   // Space between different roads
-  roadSpacing: 250,
+  roadSpacing: 400,
 
   // Space between lanes in the same road
-  laneSpacing: 16
+  laneSpacing: 25
 }

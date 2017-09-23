@@ -4,15 +4,19 @@ export default class Screen {
     this.ctx = this.canvas.getContext('2d')
     this.previousTimestamp = null
     this.backgroundColor = backgroundColor
+    this.clientPixelRatio = window.devicePixelRatio
 
     // Calculate the width/height and create all the objects
     this.resize()
+
+    // Offset the canvas half a pixel so lines are more crisp
+    this.ctx.translate(0.5, 0.5)
   }
 
   resize () {
     // Get height and width of the canvas on the client screen
-    this.width = this.canvas.clientWidth
-    this.height = this.canvas.clientHeight
+    this.width = this.clientPixelRatio * this.canvas.clientWidth
+    this.height = this.clientPixelRatio * this.canvas.clientHeight
 
     // Update the height and width of the drawing space of the client
     // This is to avoid scaling (shrinking down or scaling up of the canvas)
@@ -22,6 +26,7 @@ export default class Screen {
     if (this.height !== this.canvas.height) {
       this.canvas.height = this.height
     }
+
   }
 
   clear () {
@@ -45,10 +50,17 @@ export default class Screen {
     })
   }
 
+  write (text) {
+    this.ctx.fillStyle = 'black'
+    this.ctx.fillText(text, 2, 8)
+  }
+
   frame (timestamp) {
     // Calculate delta and set previous timestamp for next frame
     const delta = (this.previousTimestamp === null) ? 0 : (timestamp - this.previousTimestamp)
     this.previousTimestamp = timestamp
+
+    const fps = delta ? Math.round(1000 / delta) : 0
 
     // Calculate new position of all the objects
     this.resize()
@@ -56,6 +68,7 @@ export default class Screen {
 
     // Draw all the objects
     this.clear()
+    this.write(`${fps} fps`)
     this.draw(this)
 
     // Start the loop (again)
