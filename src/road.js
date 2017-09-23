@@ -1,4 +1,5 @@
 import {Axis, Direction, Random} from './util'
+import Settings from './settings'
 import Lane from './lane'
 
 export default class Road {
@@ -17,11 +18,11 @@ export default class Road {
     } else {
       // Two-way street
       if (axis === Axis.vertical) {
-        this.lanes.push(new Lane({x: x - 9, axis, direction: Direction.down}))
-        this.lanes.push(new Lane({x: x + 9, axis, direction: Direction.up}))
+        this.lanes.push(new Lane({x: x - Settings.laneSpacing, axis, direction: Direction.down}))
+        this.lanes.push(new Lane({x: x + Settings.laneSpacing, axis, direction: Direction.up}))
       } else if (axis === Axis.horizontal) {
-        this.lanes.push(new Lane({y: y - 9, axis, direction: Direction.left}))
-        this.lanes.push(new Lane({y: y + 9, axis, direction: Direction.right}))
+        this.lanes.push(new Lane({y: y - Settings.laneSpacing, axis, direction: Direction.left}))
+        this.lanes.push(new Lane({y: y + Settings.laneSpacing, axis, direction: Direction.right}))
       } else {
         throw Error(`Invalid axis: ${axis}`)
       }

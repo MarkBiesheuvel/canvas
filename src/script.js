@@ -3,15 +3,11 @@ import Lane from './lane'
 import Road from './road'
 import Screen from './screen'
 import {Direction, Axis, Random} from './util'
+import Settings from './settings'
 
 ;(() => {
-  const laneSize = 250
   const cars = []
   const roads = []
-
-  // Colors chosen from material.io color palettes
-  // https://material.io/guidelines/style/color.html#color-color-tool
-  const colors = ['#F44336', '#FF9800', '#03A9F4', '#8BC34A', '#673AB7']
 
   const screen = new Screen({
     backgroundColor: '#F5F5F5'
@@ -20,14 +16,13 @@ import {Direction, Axis, Random} from './util'
   {
     const axis = Axis.vertical
     const directions = Direction.getDirectionsForAxis(axis)
-    const radius = 7
-    for (let x = laneSize; x < screen.width; x += laneSize) {
+    for (let x = Settings.roadSpacing; x < screen.width; x += Settings.roadSpacing) {
       const road = new Road({x, axis})
-      const velocity = Random.float({min: 0.15, max: 0.3})
+      const velocity = Random.float(Settings.velocity)
       road.lanes.forEach((lane) => {
-        for (let y = 0; y < screen.height; y += Random.float({min: 100, max: 300})) {
-          const color = Random.item(colors)
-          cars.push(new Car({x: lane.x, y, radius, velocity, color, direction: lane.direction}))
+        for (let y = 0; y < screen.height; y += Random.float(Settings.startingDistance)) {
+          const color = Random.item(Settings.colors)
+          cars.push(new Car({x: lane.x, y, radius: Settings.radius, velocity, color, direction: lane.direction}))
         }
       })
       roads.push(road)
@@ -37,14 +32,13 @@ import {Direction, Axis, Random} from './util'
   {
     const axis = Axis.horizontal
     const directions = Direction.getDirectionsForAxis(axis)
-    const radius = 7
-    for (let y = laneSize; y < screen.height; y += laneSize) {
+    for (let y = Settings.roadSpacing; y < screen.height; y += Settings.roadSpacing) {
       const road = new Road({y, axis})
-      const velocity = Random.float({min: 0.15, max: 0.3})
+      const velocity = Random.float(Settings.velocity)
       road.lanes.forEach((lane) => {
-        for (let x = 0; x < screen.width; x += Random.float({min: 100, max: 300})) {
-          const color = Random.item(colors)
-          cars.push(new Car({x, y: lane.y, radius, velocity, color, direction: lane.direction}))
+        for (let x = 0; x < screen.width; x += Random.float(Settings.startingDistance)) {
+          const color = Random.item(Settings.colors)
+          cars.push(new Car({x, y: lane.y, radius: Settings.radius, velocity, color, direction: lane.direction}))
         }
       })
       roads.push(road)
