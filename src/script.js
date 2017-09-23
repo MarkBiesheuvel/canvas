@@ -5,7 +5,6 @@ import Screen from './screen'
 import {Direction, Axis, Random} from './util'
 
 ;(() => {
-  const carsPerLane = 5
   const laneSize = 250
   const cars = []
   const roads = []
@@ -21,14 +20,13 @@ import {Direction, Axis, Random} from './util'
   {
     const axis = Axis.vertical
     const directions = Direction.getDirectionsForAxis(axis)
+    const radius = 7
     for (let x = laneSize; x < screen.width; x += laneSize) {
       const road = new Road({x, axis})
+      const velocity = Random.float({min: 0.15, max: 0.3})
       road.lanes.forEach((lane) => {
-        for (let i = 0; i < carsPerLane; i++) {
-          const radius = 7
-          const velocity = Random.float({min: 0.25, max: 0.3})
+        for (let y = 0; y < screen.height; y += Random.float({min: 100, max: 300})) {
           const color = Random.item(colors)
-          const y = Random.float({max: screen.height})
           cars.push(new Car({x: lane.x, y, radius, velocity, color, direction: lane.direction}))
         }
       })
@@ -39,14 +37,13 @@ import {Direction, Axis, Random} from './util'
   {
     const axis = Axis.horizontal
     const directions = Direction.getDirectionsForAxis(axis)
+    const radius = 7
     for (let y = laneSize; y < screen.height; y += laneSize) {
       const road = new Road({y, axis})
+      const velocity = Random.float({min: 0.15, max: 0.3})
       road.lanes.forEach((lane) => {
-        for (let i = 0; i < carsPerLane; i++) {
-          const radius = 7
-          const velocity = Random.float({min: 0.25, max: 0.3})
+        for (let x = 0; x < screen.width; x += Random.float({min: 100, max: 300})) {
           const color = Random.item(colors)
-          const x = Random.float({max: screen.width})
           cars.push(new Car({x, y: lane.y, radius, velocity, color, direction: lane.direction}))
         }
       })

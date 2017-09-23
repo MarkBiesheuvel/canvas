@@ -54,10 +54,11 @@ export default class Car {
   }
 
   intersectsWithSingleCar (a = {x, y, radius}, b = {x, y, radius}) {
-    const dx = a.x - b.x
-    const dy = a.y - b.y
-    const r = a.radius + b.radius
-    return (dx * dx + dy * dy) < r * r
+    // Use rectanglur bounding box around circlular car
+    return (a.x - a.radius) < (b.x + b.radius) &&
+      (a.x + a.radius) > (b.x - b.radius) &&
+      (a.y - a.radius) < (b.y + b.radius) &&
+      (a.y + a.radius) > (b.y - b.radius)
   }
 
   move ({ctx, width, height}, delta, cars = []) {
