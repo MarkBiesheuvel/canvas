@@ -56,7 +56,7 @@ import {Direction, Axis, Random} from './util'
 
   screen.start({
     update: (screen, delta) => {
-      cars.forEach((car) => car.move(screen, delta))
+      cars.forEach((car) => car.move(screen, delta, cars))
     },
     draw: (screen) => {
       roads.forEach((road) => road.draw(screen))

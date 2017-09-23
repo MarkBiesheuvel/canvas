@@ -42,8 +42,33 @@ export default class Car {
     ctx.fill()
   }
 
-  move ({width, height}, delta) {
+  intersectsWithAnyCar (cars = []) {
+    return cars.reduce((accumulator, car) => {
+      // Short cut when accumulator is already true
+      //  and when checking intersecting with current car
+      if (accumulator || this == car) {
+        return accumulator
+      }
+      return this.intersectsWithSingleCar(this, car)
+    }, false)
+  }
+
+  intersectsWithSingleCar (a = {x, y, radius}, b = {x, y, radius}) {
+    const dx = a.x - b.x
+    const dy = a.y - b.y
+    const r = a.radius + b.radius
+    return (dx * dx + dy * dy) < r * r
+  }
+
+  move ({ctx, width, height}, delta, cars = []) {
     const distance = delta * this.velocity
+
+    // Keep a backup of the old Y position in case we need to back up
+    const backup = {
+      x: this.x,
+      y: this.y
+    }
+
     if (this.direction === Direction.right) {
       this.moveRight(distance, width)
     } else if (this.direction === Direction.left) {
@@ -51,11 +76,16 @@ export default class Car {
     } else if (this.direction === Direction.down) {
       this.moveDown(distance, height)
     } else if (this.direction === Direction.up) {
-      this.moveUp(distance, height)
+      this.moveUp(distance, height, cars)
+    }
+
+    if (this.intersectsWithAnyCar(cars)) {
+      this.x = backup.x
+      this.y = backup.y
     }
   }
 
-  moveUp (distance, height) {
+  moveUp (distance, height, cars) {
     this.y -= distance
     while (this.y < -this.radius) {
       this.y += height
