@@ -1,4 +1,4 @@
-import {Direction} from './util'
+import Direction from './utils/direction'
 
 export default class Car {
   constructor ({

@@ -2,7 +2,9 @@ import Car from './car'
 import Lane from './lane'
 import Road from './road'
 import Screen from './screen'
-import {Direction, Axis, Random} from './util'
+import Direction from './utils/direction.js'
+import Axis from './utils/axis'
+import Random from './utils/random'
 import Settings from './settings'
 
 ;(() => {

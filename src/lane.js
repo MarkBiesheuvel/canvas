@@ -1,4 +1,5 @@
-import {Direction, Axis} from './util'
+import Direction from './utils/direction.js'
+import Axis from './utils/axis'
 
 export default class Lane {
   constructor ({

@@ -1,4 +1,6 @@
-import {Axis, Direction, Random} from './util'
+import Direction from './utils/direction'
+import Axis from './utils/axis'
+import Random from './utils/random'
 import Settings from './settings'
 import Lane from './lane'
 
