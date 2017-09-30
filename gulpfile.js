@@ -8,14 +8,17 @@ const pump = require('pump')
 
 gulp.task('watch', () => {
   livereload.listen()
-  gulp.watch('src/**/*.js', ['build'])
+  gulp.watch('projects/busy-intersections/**/*.js', ['build'])
 })
 
 gulp.task('build', (callback) => {
   pump([
-    gulp.src('src/**/*.js'),
+    gulp.src([
+      'projects/busy-intersections/**/*.js',
+      'library/**/*.js'
+    ]),
     sourcemaps.init(),
-    rollup({input: 'src/script.js', format: 'es'}),
+    rollup({input: 'projects/busy-intersections/script.js', format: 'es'}),
     babel({presets: ['es2015']}),
     uglify({toplevel: true}),
     sourcemaps.write('.'),

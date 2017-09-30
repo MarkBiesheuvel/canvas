@@ -1,5 +1,5 @@
-import Direction from './utils/direction.js'
-import Axis from './utils/axis'
+import Direction from '../../../library/direction.js'
+import Axis from '../../../library/axis'
 
 export default class Lane {
   constructor ({

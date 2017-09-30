@@ -1,7 +1,7 @@
-import Direction from './utils/direction'
-import Axis from './utils/axis'
-import Random from './utils/random'
-import Settings from './settings'
+import Direction from '../../../library/direction'
+import Axis from '../../../library/axis'
+import Random from '../../../library/random'
+import Settings from '../settings'
 import Lane from './lane'
 
 export default class Road {
