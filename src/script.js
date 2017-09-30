@@ -22,6 +22,7 @@ import Settings from './settings'
       const road = new Road({x, axis})
       const velocity = Random.float(Settings.velocity)
       road.lanes.forEach((lane) => {
+        // TODO: let cars spawn in on the side of the screen and let them disapear when they get to the other side
         for (let y = 0; y < screen.height; y += Random.float(Settings.startingDistance)) {
           const color = Random.item(Settings.colors)
           cars.push(new Car({x: lane.x, y, radius: Settings.radius, velocity, color, direction: lane.direction}))

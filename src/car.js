@@ -55,6 +55,7 @@ export default class Car {
 
   intersectsWithSingleCar (a = {x, y, radius}, b = {x, y, radius}) {
     // Use rectanglur bounding box around circlular car
+    // TODO: soft bounding box vs hard bounding box
     return (a.x - a.radius) < (b.x + b.radius) &&
       (a.x + a.radius) > (b.x - b.radius) &&
       (a.y - a.radius) < (b.y + b.radius) &&
@@ -81,6 +82,8 @@ export default class Car {
     }
 
     if (this.intersectsWithAnyCar(cars)) {
+      // TODO: deaccalerate when intersecting with soft bounding box
+      // stop and mark as crashed when intersecting with hard bounding box
       this.x = backup.x
       this.y = backup.y
     }
