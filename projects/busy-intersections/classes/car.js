@@ -1,6 +1,13 @@
 import Direction from '../../../library/direction'
 
+const all = new Set()
+
 export default class Car {
+
+  static get all() {
+    return all
+  }
+
   constructor ({
     x,
     y,
@@ -15,42 +22,24 @@ export default class Car {
     this.velocity = velocity
     this.color = color
     this.direction = direction
+
+    all.add(this)
   }
 
   draw ({ctx, width, height}) {
     ctx.fillStyle = this.color
-    this.drawCircle(ctx, this.x, this.y)
-
-    // Draw circle at the other side if it is close to the edge
-    if (this.x < this.radius) {
-      this.drawCircle(ctx, this.x + width, this.y)
-    } else if (width - this.radius < this.x) {
-      this.drawCircle(ctx, this.x - width, this.y)
-    }
-
-    // Draw circle at the other side if it is close to the edge
-    if (this.y < this.radius) {
-      this.drawCircle(ctx, this.x, this.y + height)
-    } else if (height - this.radius < this.y) {
-      this.drawCircle(ctx, this.x, this.y - height)
-    }
-  }
-
-  drawCircle (ctx, x, y) {
     ctx.beginPath()
-    ctx.arc(x, y, this.radius, 0, 2 * Math.PI)
+    ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI)
     ctx.fill()
   }
 
-  intersectsWithAnyCar (cars = []) {
-    return cars.reduce((accumulator, car) => {
-      // Short cut when accumulator is already true
-      //  and when checking intersecting with current car
-      if (accumulator || this == car) {
-        return accumulator
+  intersectsWithAnyCar () {
+    for (let car of all) {
+      if (this !== car && this.intersectsWithSingleCar(this, car)) {
+        return true
       }
-      return this.intersectsWithSingleCar(this, car)
-    }, false)
+    }
+    return false
   }
 
   intersectsWithSingleCar (a = {x, y, radius}, b = {x, y, radius}) {
@@ -62,7 +51,7 @@ export default class Car {
       (a.y + a.radius) > (b.y - b.radius)
   }
 
-  move ({ctx, width, height}, delta, cars = []) {
+  update ({ctx, width, height}, delta) {
     const distance = delta * this.velocity
 
     // Keep a backup of the old Y position in case we need to back up
@@ -78,10 +67,10 @@ export default class Car {
     } else if (this.direction === Direction.down) {
       this.moveDown(distance, height)
     } else if (this.direction === Direction.up) {
-      this.moveUp(distance, height, cars)
+      this.moveUp(distance, height)
     }
 
-    if (this.intersectsWithAnyCar(cars)) {
+    if (this.intersectsWithAnyCar(all)) {
       // TODO: deaccalerate when intersecting with soft bounding box
       // stop and mark as crashed when intersecting with hard bounding box
       this.x = backup.x
@@ -89,31 +78,31 @@ export default class Car {
     }
   }
 
-  moveUp (distance, height, cars) {
+  moveUp (distance, height) {
     this.y -= distance
-    while (this.y < -this.radius) {
-      this.y += height
+    if (this.y < -this.radius) {
+      all.delete(this)
     }
   }
 
   moveDown (distance, height) {
     this.y += distance
-    while (height + this.radius < this.y) {
-      this.y -= height
+    if (height + this.radius < this.y) {
+      all.delete(this)
     }
   }
 
   moveLeft (distance, width) {
     this.x -= distance
-    while (this.x < -this.radius) {
-      this.x += width
+    if (this.x < -this.radius) {
+      all.delete(this)
     }
   }
 
   moveRight (distance, width) {
     this.x += distance
-    while (width + this.radius < this.x) {
-      this.x -= width
+    if (width + this.radius < this.x) {
+      all.delete(this)
     }
   }
 }

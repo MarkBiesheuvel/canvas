@@ -1,5 +1,8 @@
-import Direction from '../../../library/direction.js'
+import Direction from '../../../library/direction'
 import Axis from '../../../library/axis'
+import Random from '../../../library/random'
+import Car from './car'
+import Settings from '../settings'
 
 export default class Lane {
   constructor ({
@@ -12,6 +15,41 @@ export default class Lane {
     this.y = y
     this.axis = axis
     this.direction = direction
+    this.nextSpawnTimestamp = null
+  }
+
+  update({width, height}, delta, timestamp) {
+    if (this.nextSpawnTimestamp === null) {
+      this.nextSpawnTimestamp = timestamp + Random.float(Settings.spawnInterval)
+    }
+
+    if (timestamp > this.nextSpawnTimestamp) {
+
+      let x, y
+      const radius = Settings.radius
+
+      if (this.direction === Direction.right) {
+        x = -radius
+        y = this.y
+      } else if (this.direction === Direction.left) {
+        x = width + radius
+        y = this.y
+      } else if (this.direction === Direction.down) {
+        x = this.x
+        y = -radius
+      } else if (this.direction === Direction.up) {
+        x = this.x
+        y = height + radius
+      }
+
+      new Car({x, y, radius,
+        velocity: Random.float(Settings.velocity),
+        color: Random.item(Settings.colors),
+        direction: this.direction
+      })
+
+      this.nextSpawnTimestamp = timestamp + Random.float(Settings.spawnInterval)
+    }
   }
 
   draw ({ctx, width, height}) {

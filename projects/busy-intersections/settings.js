@@ -3,16 +3,10 @@ export default {
   // https://material.io/guidelines/style/color.html#color-color-tool
   colors: ['#F44336', '#FF9800', '#03A9F4', '#8BC34A', '#673AB7'],
 
-  // Minimum and maximum starting distance between cars
-  startingDistance: {
-    min: 100,
-    max: 300
-  },
-
   // Minimum and maximum velocity of cars in a lane
   velocity: {
-    min: 0.15,
-    max: 0.30
+    min: 0.20,
+    max: 0.25
   },
 
   // Radius of a car
@@ -22,5 +16,11 @@ export default {
   roadSpacing: 400,
 
   // Space between lanes in the same road
-  laneSpacing: 25
+  laneSpacing: 25,
+
+  // Spawn interval between cars on a single lane
+  spawnInterval: {
+    min: 500,
+    max: 1500
+  }
 }

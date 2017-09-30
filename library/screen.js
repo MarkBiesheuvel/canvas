@@ -50,7 +50,7 @@ export default class Screen {
     })
   }
 
-  write (text) {
+  write (text, line) {
     this.ctx.fillStyle = 'black'
     this.ctx.fillText(text, 2, 8)
   }
@@ -64,7 +64,7 @@ export default class Screen {
 
     // Calculate new position of all the objects
     this.resize()
-    this.update(this, delta)
+    this.update(this, delta, timestamp)
 
     // Draw all the objects
     this.clear()
